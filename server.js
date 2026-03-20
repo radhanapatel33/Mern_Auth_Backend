@@ -10,7 +10,7 @@ dotenv.config();
 connectDB();
 const app = express();
 
-const allowedOrigins = ['https://mern-auth-frontend-psi-cyan.vercel.app']
+const allowedOrigins = ['http://localhost:5173','https://mern-auth-frontend-psi-cyan.vercel.app']
 
 app.use(express.json());
 app.use(cookieParser());
