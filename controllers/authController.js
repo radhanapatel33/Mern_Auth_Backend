@@ -31,13 +31,17 @@ export const register = async (req, res) => {
         //         'none' : 'strict',
         //     maxAge: 7 * 24 * 60 * 60 * 1000
         // });
+        // --------------------------------
+
+        const isProduction = process.env.NODE_ENV === 'production';
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: isProduction,          // ✔️ production में true
+            sameSite: isProduction ? 'none' : 'lax',  // ✔️ local में lax
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
+        // -----------------------
 
         // sending welcome email
 
@@ -92,12 +96,17 @@ export const login = async (req, res) => {
         //     maxAge: 7 * 24 * 60 * 60 * 1000
         // });
 
+        // -------------------------------
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: isProduction,          // ✔️ production में true
+            sameSite: isProduction ? 'none' : 'lax',  // ✔️ local में lax
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
+
+        // -----------------
 
         return res.json({ success: true });
 
@@ -112,12 +121,6 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
 
     try {
-        res.clearCookie('token', {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-        });
-
         // res.clearCookie('token', {
         //     httpOnly: true,
         //     secure: process.env.NODE_ENV === 'production',
@@ -125,6 +128,19 @@ export const logout = async (req, res) => {
         //         'none' : 'strict',
 
         // });
+
+        // ---------------------------
+
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+        });
+
+        // -----------------------
+
         return res.json({ success: true, message: 'Logged Out' })
 
     } catch (error) {
@@ -157,7 +173,7 @@ export const sendVerifyOtp = async (req, res) => {
             to: user.email,
             subject: 'Account Verification OTP',
             text: `Your OTP is ${otp}. Verify your account using this OTP.`,
-            // html: EMAIL_VERIFY_TEMPLATE.replace('{{otp}}', otp).replace("{{email}}", user.email)
+            
         }
         await transporter.sendMail(mailOption);
 
@@ -248,7 +264,6 @@ export const sendResetOtp = async (req, res) => {
             to: user.email,
             subject: 'Password Reset OTP',
             text: `Your OTP for resetting your password is ${otp}. Use this OTP to proceed with resetting your password.`,
-            // html: PASSWORD_RESET_TEMPLATE.replace('{{otp}}', otp).replace("{{email}}", user.email)
 
         }
         await transporter.sendMail(mailOption);
